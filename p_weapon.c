@@ -263,7 +263,7 @@ void NoAmmoWeaponChange (edict_t *ent)
 		ent->client->newweapon = FindItem ("super shotgun");
 		return;
 	}
-	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("mana"))]
+	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("shells"))]
 		&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("shotgun"))] )
 	{
 		ent->client->newweapon = FindItem ("shotgun");
@@ -1441,12 +1441,8 @@ void Weapon_BFG (edict_t *ent)
 }
 
 
-//======================================================================
-//THANKS TO http ://www.quake2.com/dll/tutorials/gbtut4_1.html 
-// +BD NEW CODE BLOCK
-//======================================================================
-//Mk23 Pistol - Ready for testing - Just need to replace the blaster anim with 
-//the correct animation for the Mk23.
+//THANKS TO http ://www.quake2.com/dll/tutorials/gbtut4_1.html
+//Learned how to successfully add new weapons thanks to this guy ^^
 
 void Spell_Fire_Cast(edict_t *ent)
 {
@@ -1458,6 +1454,12 @@ void Spell_Fire_Cast(edict_t *ent)
 	int		kick = 30;
 	vec3_t		offset;
 
+	int			ammo_index;
+	gitem_t		*ammo_item;
+
+	//Use Mana!
+	ammo_item = FindItem("MANA");
+	ammo_index = ITEM_INDEX(ammo_item);
 
 	//If the user isn't pressing the attack button, advance the frame and go away....
 	if (!(ent->client->buttons & BUTTON_ATTACK))
@@ -1497,20 +1499,7 @@ void Spell_Fire_Cast(edict_t *ent)
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
 
-	//BD 3/4 - Added to animate last round firing...
-	// Don't worry about this now. We'll come back to it later.
-	//if (ent->client->pers.inventory[ent->client->ammo_index] == 1 || (ent->client->Mk23_rds == 1))
-	//{
-	//Hard coded for reload only.
-	//ent->client->ps.gunframe=64;
-	//ent->client->weaponstate = WEAPON_END_MAG;
-	//fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD,MOD_Mk23);
-	//ent->client->Mk23_rds--;
-	//}
-	//else
-	//{
-	//If no reload, fire normally.
-	fire_bullet(ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_Spell_Fire_Cast);
+	weapon_railgun_fire(ent);
 	//ent->client->Mk23_rds--;
 	//}
 	//BD - Use our firing sound

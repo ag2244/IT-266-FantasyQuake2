@@ -994,20 +994,12 @@ void ClientCommand (edict_t *ent)
 		Cmd_PlayerList_f(ent);
 
 	//MOD
+	/*
 	else if (Q_stricmp(cmd, "modtest") == 0)
 	{
-		it = FindItem("MANA");
-		it_ent = G_Spawn();
-		it_ent->classname = it->classname;
-		SpawnItem(it_ent, it);
-		/*Touch_Item(it_ent, ent, NULL, NULL);
-
-		if (it_ent->inuse)
-			G_FreeEdict(it_ent);*/
-
-		gi.bprintf(1, "ASDF\n");
-		Cmd_PlayerList_f(ent);
+		Cmd_Give_f(ent);
 	}
+	*/
 
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);

@@ -1577,7 +1577,7 @@ always owned, never in the world
 		"FireSpell",
 		0,
 		1,
-		"SHELLS",
+		"MANA",
 		IT_WEAPON,
 		NULL,
 		0,
@@ -2165,18 +2165,17 @@ tank commander's head
 		Drop_Ammo,
 		NULL,
 		"misc/am_pkup.wav",
-		"models/items/ammo/bullets/medium/tris.md2", 0,
+		"models/items/ammo/slugs/medium/tris.md2", 0,
 		NULL,
-		/* icon */		"a_bullets",
+		/* icon */	"a_bullets",
 		/* pickup */	"MANA",
-		/* width */		3,
-		100,
+		/* width */	3,
+		50,
 		NULL,
 		IT_AMMO,
-		0,
 		NULL,
 		AMMO_MANA,
-		/* precache */ ""
+		/* precache */	""
 	},
 
 	// end of list marker
