@@ -914,3 +914,84 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 
 	gi.linkentity (bfg);
 }
+
+
+/*
+=================
+fire_hit
+
+Used for all impact (hit/punch/slash) attacks
+=================
+*/
+qboolean modMelee(edict_t *self, vec3_t aim, int damage, int kick)
+{
+	trace_t		tr;
+	vec3_t		forward, right, up;
+	vec3_t		v;
+	vec3_t		point;
+	float		range;
+	vec3_t		dir;
+
+	//see if enemy is in range
+	VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
+
+	range = pow((pow(aim[0], 2) + pow(aim[1], 2) + pow(aim[2], 2)), 0.5);
+
+	char buf[100];
+	gi.bprintf(1, gcvt(range, 10, buf));
+	gi.bprintf(1, "\n");
+
+	/*
+	range = VectorLength(dir);
+	if (range > aim[0])
+		return false;
+
+	if (aim[1] > self->mins[0] && aim[1] < self->maxs[0])
+	{
+		// the hit is straight on so back the range up to the edge of their bbox
+		range -= self->enemy->maxs[0];
+	}
+	else
+	{
+		// this is a side hit so adjust the "right" value out to the edge of their bbox
+		if (aim[1] < 0)
+			aim[1] = self->enemy->mins[0];
+		else
+			aim[1] = self->enemy->maxs[0];
+	}
+
+	VectorMA(self->s.origin, range, dir, point);
+
+	tr = gi.trace(self->s.origin, NULL, NULL, point, self, MASK_SHOT);
+	if (tr.fraction < 1)
+	{
+		if (!tr.ent->takedamage)
+			return false;
+		// if it will hit any client/monster then hit the one we wanted to hit
+		if ((tr.ent->svflags & SVF_MONSTER) || (tr.ent->client))
+			tr.ent = self->enemy;
+	}
+
+	AngleVectors(self->s.angles, forward, right, up);
+	VectorMA(self->s.origin, range, forward, point);
+	VectorMA(point, aim[1], right, point);
+	VectorMA(point, aim[2], up, point);
+	VectorSubtract(point, self->enemy->s.origin, dir);
+
+	// do the damage
+	T_Damage(tr.ent, self, self, dir, point, vec3_origin, damage, kick / 2, DAMAGE_NO_KNOCKBACK, MOD_HIT);
+
+	if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
+		return false;
+
+	// do our special form of knockback here
+	VectorMA(self->enemy->absmin, 0.5, self->enemy->size, v);
+	VectorSubtract(v, point, v);
+	VectorNormalize(v);
+	VectorMA(self->enemy->velocity, kick, v, self->enemy->velocity);
+	if (self->enemy->velocity[2] > 0)
+		self->enemy->groundentity = NULL;
+	return true;*/
+
+	return true;
+}

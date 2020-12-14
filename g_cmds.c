@@ -230,7 +230,7 @@ void Cmd_Give_f (edict_t *ent)
 	}
 
 	if (give_all || Q_stricmp(name, "Power Shield") == 0)
-	{
+	{ //NEEDED FOR MOD!
 		it = FindItem("Power Shield");
 		it_ent = G_Spawn();
 		it_ent->classname = it->classname;
@@ -907,6 +907,11 @@ ClientCommand
 */
 void ClientCommand (edict_t *ent)
 {
+
+	//MOD
+	gitem_t		*it;
+	edict_t		*it_ent;
+
 	char	*cmd;
 
 	if (!ent->client)
@@ -987,6 +992,23 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+
+	//MOD
+	else if (Q_stricmp(cmd, "modtest") == 0)
+	{
+		it = FindItem("MANA");
+		it_ent = G_Spawn();
+		it_ent->classname = it->classname;
+		SpawnItem(it_ent, it);
+		/*Touch_Item(it_ent, ent, NULL, NULL);
+
+		if (it_ent->inuse)
+			G_FreeEdict(it_ent);*/
+
+		gi.bprintf(1, "ASDF\n");
+		Cmd_PlayerList_f(ent);
+	}
+
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

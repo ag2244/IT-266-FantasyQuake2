@@ -1,0 +1,64 @@
+﻿Build started 12/6/2020 2:28:05 PM.
+     1>Project "C:\Program Files (x86)\GOG Galaxy\Games\Quake II\mod_test01\q2source\game\game.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D C_ONLY /D _VC80_UPGRADE=0x0600 /D _WINDLL /Gm- /EHsc /MTd /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\DebugAxp\\" /Fd".\DebugAxp\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt  /QA21164 /MTd   /QA21164 /MTd p_weapon.c
+     1>cl : Command line warning D9002: ignoring unknown option '/QA21164'
+     1>cl : Command line warning D9002: ignoring unknown option '/QA21164'
+         p_weapon.c
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(1186,5): warning MSB8012: TargetPath(C:\Program Files (x86)\GOG Galaxy\Games\Quake II\mod_test01\q2source\game\.\..\DebugAxp\game.dll) does not match the Linker's OutputFile property value (C:\Program Files (x86)\GOG Galaxy\Games\Quake II\mod_test01\q2source\DebugAxp\gameaxp.dll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(1188,5): warning MSB8012: TargetName(game) does not match the Linker's OutputFile property value (gameaxp). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\DebugAxp/gameaxp.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:".\game.def" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:".\..\DebugAxp\game.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /BASE:"0x20000000" /DYNAMICBASE /NXCOMPAT /IMPLIB:".\..\DebugAxp\gameaxp.lib" /MACHINE:X86 /SAFESEH /DLL .\DebugAxp\g_ai.obj
+         .\DebugAxp\g_chase.obj
+         .\DebugAxp\g_cmds.obj
+         .\DebugAxp\g_combat.obj
+         .\DebugAxp\g_func.obj
+         .\DebugAxp\g_items.obj
+         .\DebugAxp\g_main.obj
+         .\DebugAxp\g_misc.obj
+         .\DebugAxp\g_monster.obj
+         .\DebugAxp\g_phys.obj
+         .\DebugAxp\g_save.obj
+         .\DebugAxp\g_spawn.obj
+         .\DebugAxp\g_svcmds.obj
+         .\DebugAxp\g_target.obj
+         .\DebugAxp\g_trigger.obj
+         .\DebugAxp\g_turret.obj
+         .\DebugAxp\g_utils.obj
+         .\DebugAxp\g_weapon.obj
+         .\DebugAxp\m_actor.obj
+         .\DebugAxp\m_berserk.obj
+         .\DebugAxp\m_boss2.obj
+         .\DebugAxp\m_boss3.obj
+         .\DebugAxp\m_boss31.obj
+         .\DebugAxp\m_boss32.obj
+         .\DebugAxp\m_brain.obj
+         .\DebugAxp\m_chick.obj
+         .\DebugAxp\m_flash.obj
+         .\DebugAxp\m_flipper.obj
+         .\DebugAxp\m_float.obj
+         .\DebugAxp\m_flyer.obj
+         .\DebugAxp\m_gladiator.obj
+         .\DebugAxp\m_gunner.obj
+         .\DebugAxp\m_hover.obj
+         .\DebugAxp\m_infantry.obj
+         .\DebugAxp\m_insane.obj
+         .\DebugAxp\m_medic.obj
+         .\DebugAxp\m_move.obj
+         .\DebugAxp\m_mutant.obj
+         .\DebugAxp\m_parasite.obj
+         .\DebugAxp\m_soldier.obj
+         .\DebugAxp\m_supertank.obj
+         .\DebugAxp\m_tank.obj
+         .\DebugAxp\p_client.obj
+         .\DebugAxp\p_hud.obj
+         .\DebugAxp\p_trail.obj
+         .\DebugAxp\p_view.obj
+         .\DebugAxp\p_weapon.obj
+         .\DebugAxp\q_shared.obj
+         game.vcxproj -> C:\Program Files (x86)\GOG Galaxy\Games\Quake II\mod_test01\q2source\game\.\..\DebugAxp\game.dll
+     1>Done Building Project "C:\Program Files (x86)\GOG Galaxy\Games\Quake II\mod_test01\q2source\game\game.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.73

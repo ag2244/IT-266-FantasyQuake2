@@ -169,7 +169,7 @@ void berserk_run (edict_t *self)
 
 void berserk_attack_spike (edict_t *self)
 {
-	static	vec3_t	aim = {MELEE_DISTANCE, 0, -24};
+	static	vec3_t	aim = {80, 0, -24};
 	fire_hit (self, aim, (15 + (rand() % 6)), 400);		//	Faster attack -- upwards and backwards
 }
 

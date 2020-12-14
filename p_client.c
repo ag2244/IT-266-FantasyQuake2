@@ -383,6 +383,13 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 				message = "tried to invade";
 				message2 = "'s personal space";
 				break;
+
+				//+BD Add our client obit messages
+			case MOD_Spell_Fire_Cast:
+				message = "was fired up by";
+				message2 = "'s FIRE SPELL!";
+				break;
+				//+BD end of add
 			}
 			if (message)
 			{
@@ -610,7 +617,9 @@ void InitClientPersistant (gclient_t *client)
 
 	memset (&client->pers, 0, sizeof(client->pers));
 
-	item = FindItem("Blaster");
+	//MOD REFERENCE
+	//item = FindItem("Blaster");
+	item = FindItem("FireSpell");
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
 

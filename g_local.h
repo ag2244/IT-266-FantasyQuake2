@@ -103,7 +103,10 @@ typedef enum
 	AMMO_ROCKETS,
 	AMMO_GRENADES,
 	AMMO_CELLS,
-	AMMO_SLUGS
+	AMMO_SLUGS,
+
+	//MOD
+	AMMO_MANA
 } ammo_t;
 
 
@@ -230,6 +233,14 @@ typedef struct
 #define WEAP_HYPERBLASTER		9 
 #define WEAP_RAILGUN			10
 #define WEAP_BFG				11
+
+//MOD ADDITIONS
+#define MOD_Spell_Fire	33
+
+//+BD - Added for firing. Tells server how you died?
+#define MOD_Spell_Fire_Cast			   34
+
+#define MOD_FRIENDLY_FIRE	0x8000000
 
 typedef struct gitem_s
 {
@@ -851,6 +862,7 @@ typedef struct
 	int			max_grenades;
 	int			max_cells;
 	int			max_slugs;
+	int			max_mana;
 
 	gitem_t		*weapon;
 	gitem_t		*lastweapon;

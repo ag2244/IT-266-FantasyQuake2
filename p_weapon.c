@@ -263,7 +263,7 @@ void NoAmmoWeaponChange (edict_t *ent)
 		ent->client->newweapon = FindItem ("super shotgun");
 		return;
 	}
-	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("shells"))]
+	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("mana"))]
 		&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("shotgun"))] )
 	{
 		ent->client->newweapon = FindItem ("shotgun");
@@ -829,8 +829,8 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	//fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
-	fire_rocket(ent, start, forward, damage, 500 * random() + 500, 100, damage);
+	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	//fire_rocket(ent, start, forward, damage, 500 * random() + 500, 100, damage);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -1189,7 +1189,12 @@ void weapon_shotgun_fire (edict_t *ent)
 	vec3_t		offset;
 	int			damage = 4;
 	int			kick = 8;
+	///*
+	static	vec3_t	meleeaim;
+	//VectorSet(meleeaim, MELEE_DISTANCE, ent->mins[0], 0);
 
+	modMelee(ent, meleeaim, damage, kick);
+	//*/
 	if (ent->client->ps.gunframe == 9)
 	{
 		ent->client->ps.gunframe++;
@@ -1204,16 +1209,20 @@ void weapon_shotgun_fire (edict_t *ent)
 	VectorSet(offset, 0, 8,  ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
+	modMelee(ent, start, damage, kick);
+
 	if (is_quad)
 	{
 		damage *= 4;
 		kick *= 4;
 	}
 
+	///*
 	if (deathmatch->value)
 		fire_shotgun (ent, start, forward, damage, kick, 500, 500, DEFAULT_DEATHMATCH_SHOTGUN_COUNT, MOD_SHOTGUN);
 	else
 		fire_shotgun (ent, start, forward, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
+	//*/
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -1433,3 +1442,91 @@ void Weapon_BFG (edict_t *ent)
 
 
 //======================================================================
+//THANKS TO http ://www.quake2.com/dll/tutorials/gbtut4_1.html 
+// +BD NEW CODE BLOCK
+//======================================================================
+//Mk23 Pistol - Ready for testing - Just need to replace the blaster anim with 
+//the correct animation for the Mk23.
+
+void Spell_Fire_Cast(edict_t *ent)
+{
+	int	i;
+	vec3_t		start;
+	vec3_t		forward, right;
+	vec3_t		angles;
+	int		damage = 15;
+	int		kick = 30;
+	vec3_t		offset;
+
+
+	//If the user isn't pressing the attack button, advance the frame and go away....
+	if (!(ent->client->buttons & BUTTON_ATTACK))
+	{
+		ent->client->ps.gunframe++;
+		return;
+	}
+	ent->client->ps.gunframe++;
+
+	//Oops! Out of ammo!
+	if (ent->client->pers.inventory[ent->client->ammo_index] < 1)
+	{
+		ent->client->ps.gunframe = 6;
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
+		}
+		//Make the user change weapons MANUALLY!
+		//NoAmmoWeaponChange (ent);
+		return;
+	}
+
+	//Calculate the kick angles
+	for (i = 1; i<3; i++)
+	{
+		ent->client->kick_origin[i] = crandom() * 0.35;
+		ent->client->kick_angles[i] = crandom() * 0.7;
+	}
+	ent->client->kick_origin[0] = crandom() * 0.35;
+	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
+
+	// get start / end positions
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+
+
+	//BD 3/4 - Added to animate last round firing...
+	// Don't worry about this now. We'll come back to it later.
+	//if (ent->client->pers.inventory[ent->client->ammo_index] == 1 || (ent->client->Mk23_rds == 1))
+	//{
+	//Hard coded for reload only.
+	//ent->client->ps.gunframe=64;
+	//ent->client->weaponstate = WEAPON_END_MAG;
+	//fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD,MOD_Mk23);
+	//ent->client->Mk23_rds--;
+	//}
+	//else
+	//{
+	//If no reload, fire normally.
+	fire_bullet(ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_Spell_Fire_Cast);
+	//ent->client->Mk23_rds--;
+	//}
+	//BD - Use our firing sound
+	//gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
+
+	//Ammo depletion here. 
+	ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+}
+
+void Spell_Fire(edict_t *ent)
+{
+	//Idle animation entry points - These make the fidgeting look more random
+	static int	pause_frames[] = { 13, 32, 42 };
+	//The frames at which the weapon will fire
+	static int	fire_frames[] = { 10, 0 };
+
+	//The call is made...
+	Weapon_Generic(ent, 9, 14, 39, 42, /* Reload. Wait for it.63, 68,*/ pause_frames, fire_frames, Spell_Fire_Cast);
+}

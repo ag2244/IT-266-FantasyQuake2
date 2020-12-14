@@ -36,6 +36,8 @@ void Weapon_GrenadeLauncher (edict_t *ent);
 void Weapon_Railgun (edict_t *ent);
 void Weapon_BFG (edict_t *ent);
 
+void Spell_Fire(edict_t *ent);
+
 gitem_armor_t jacketarmor_info	= { 25,  50, .30, .00, ARMOR_JACKET};
 gitem_armor_t combatarmor_info	= { 50, 100, .60, .30, ARMOR_COMBAT};
 gitem_armor_t bodyarmor_info	= {100, 200, .80, .60, ARMOR_BODY};
@@ -261,6 +263,9 @@ qboolean Pickup_Pack (edict_t *ent, edict_t *other)
 	gitem_t	*item;
 	int		index;
 
+	//MOD
+	//gi.bprintf(1, "PICKUP\n");
+
 	if (other->client->pers.max_bullets < 300)
 		other->client->pers.max_bullets = 300;
 	if (other->client->pers.max_shells < 200)
@@ -273,6 +278,8 @@ qboolean Pickup_Pack (edict_t *ent, edict_t *other)
 		other->client->pers.max_cells = 300;
 	if (other->client->pers.max_slugs < 100)
 		other->client->pers.max_slugs = 100;
+	if (other->client->pers.max_mana < 1000)
+		other->client->pers.max_mana = 1000;
 
 	item = FindItem("Bullets");
 	if (item)
@@ -326,6 +333,15 @@ qboolean Pickup_Pack (edict_t *ent, edict_t *other)
 		other->client->pers.inventory[index] += item->quantity;
 		if (other->client->pers.inventory[index] > other->client->pers.max_slugs)
 			other->client->pers.inventory[index] = other->client->pers.max_slugs;
+	}
+
+	item = FindItem("MANA");
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		other->client->pers.inventory[index] += item->quantity;
+		if (other->client->pers.inventory[index] > other->client->pers.max_mana)
+			other->client->pers.inventory[index] = other->client->pers.max_mana;
 	}
 
 	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
@@ -464,6 +480,10 @@ qboolean Add_Ammo (edict_t *ent, gitem_t *item, int count)
 		max = ent->client->pers.max_cells;
 	else if (item->tag == AMMO_SLUGS)
 		max = ent->client->pers.max_slugs;
+
+	else if (item->tag == AMMO_MANA)
+		max = ent->client->pers.max_mana;
+
 	else
 		return false;
 
@@ -1311,7 +1331,7 @@ always owned, never in the world
 
 /*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-	{
+	{ //MOD REFERENCE
 		"weapon_shotgun", 
 		Pickup_Weapon,
 		Use_Weapon,
@@ -1539,11 +1559,36 @@ always owned, never in the world
 /* precache */ "sprites/s_bfg1.sp2 sprites/s_bfg2.sp2 sprites/s_bfg3.sp2 weapons/bfg__f1y.wav weapons/bfg__l1a.wav weapons/bfg__x1b.wav weapons/bfg_hum.wav"
 	},
 
+	//MOD
+	{
+		"spell_fire",
+		NULL,
+		Use_Weapon,
+		NULL,
+		Spell_Fire,
+		"misc/w_pkup.wav",
+		/* //REPLACE THE 2 LINES BELOW WITH THE 2 LINES BELOW THE END OF THIS COMMENT
+		"models/weapons/g_hyperb/tris.md2", EF_ROTATE,
+		"models/weapons/v_hyperb/tris.md2",
+		*/
+		NULL, NULL,
+		NULL,
+		"w_bfg",
+		"FireSpell",
+		0,
+		1,
+		"SHELLS",
+		IT_WEAPON,
+		NULL,
+		0,
+		""
+	},
+
 	//
 	// AMMO ITEMS
 	//
 
-/*QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16)
+/*QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16) //MOD REFERENCE
 */
 	{
 		"ammo_shells",
@@ -2109,6 +2154,29 @@ tank commander's head
 		NULL,
 		0,
 /* precache */ "items/s_health.wav items/n_health.wav items/l_health.wav items/m_health.wav"
+	},
+
+/*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16)
+*/
+	{
+		"ammo_mana",
+		Pickup_Ammo,
+		NULL,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/items/ammo/bullets/medium/tris.md2", 0,
+		NULL,
+		/* icon */		"a_bullets",
+		/* pickup */	"MANA",
+		/* width */		3,
+		100,
+		NULL,
+		IT_AMMO,
+		0,
+		NULL,
+		AMMO_MANA,
+		/* precache */ ""
 	},
 
 	// end of list marker
