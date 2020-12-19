@@ -1189,12 +1189,7 @@ void weapon_shotgun_fire (edict_t *ent)
 	vec3_t		offset;
 	int			damage = 4;
 	int			kick = 8;
-	///*
-	static	vec3_t	meleeaim;
-	//VectorSet(meleeaim, MELEE_DISTANCE, ent->mins[0], 0);
 
-	modMelee(ent, meleeaim, damage, kick);
-	//*/
 	if (ent->client->ps.gunframe == 9)
 	{
 		ent->client->ps.gunframe++;
@@ -1208,8 +1203,6 @@ void weapon_shotgun_fire (edict_t *ent)
 
 	VectorSet(offset, 0, 8,  ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-
-	modMelee(ent, start, damage, kick);
 
 	if (is_quad)
 	{
@@ -1444,14 +1437,77 @@ void Weapon_BFG (edict_t *ent)
 //THANKS TO http ://www.quake2.com/dll/tutorials/gbtut4_1.html
 //Learned how to successfully add new weapons thanks to this guy ^^
 
+//==============================================
+//	FIRE SPELL
+//==============================================
+
 void Spell_Fire_Cast(edict_t *ent)
+{
+	vec3_t	offset;
+	vec3_t	forward, right;
+	vec3_t	start;
+	int		damage = 120;
+	float	radius;
+	float speed = 1500;
+
+	int numGrensHoriz = 3;
+	int numGrensVert = 0;
+	float grenDist = 0.1;
+
+	//vec3_t forwardRand;
+
+	radius = damage + 40;
+	if (is_quad)
+		damage *= 4;
+
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	//Fire each grenade
+
+	fire_grenade(ent, start, forward, damage, speed, 0.5, radius);
+
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_GRENADE | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	ent->client->ps.gunframe++;
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+		ent->client->pers.inventory[ent->client->ammo_index]--;
+}
+
+void Spell_Fire(edict_t *ent)
+{
+	//Idle animation entry points - These make the fidgeting look more random
+	static int	pause_frames[] = { 13, 32, 42 };
+	//The frames at which the weapon will fire
+	static int	fire_frames[] = { 10, 0 };
+
+	//The call is made...
+	Weapon_Generic(ent, 9, 14, 39, 42, /* Reload. Wait for it.63, 68,*/ pause_frames, fire_frames, Spell_Fire_Cast);
+}
+
+
+//==============================================
+//	LIGHTNING SPELL
+//==============================================
+
+void Spell_Lightning_Cast(edict_t *ent)
 {
 	int	i;
 	vec3_t		start;
 	vec3_t		forward, right;
 	vec3_t		angles;
-	int		damage = 15;
-	int		kick = 30;
+	//int		damage = 15;
+	//int		kick = 30;
 	vec3_t		offset;
 
 	int			ammo_index;
@@ -1509,7 +1565,7 @@ void Spell_Fire_Cast(edict_t *ent)
 	ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
 }
 
-void Spell_Fire(edict_t *ent)
+void Spell_Lightning(edict_t *ent)
 {
 	//Idle animation entry points - These make the fidgeting look more random
 	static int	pause_frames[] = { 13, 32, 42 };
@@ -1517,5 +1573,9 @@ void Spell_Fire(edict_t *ent)
 	static int	fire_frames[] = { 10, 0 };
 
 	//The call is made...
-	Weapon_Generic(ent, 9, 14, 39, 42, /* Reload. Wait for it.63, 68,*/ pause_frames, fire_frames, Spell_Fire_Cast);
+	Weapon_Generic(ent, 9, 14, 39, 42, /* Reload. Wait for it.63, 68,*/ pause_frames, fire_frames, Spell_Lightning_Cast);
 }
+
+//==============================================
+//	STORM SPELL
+//==============================================

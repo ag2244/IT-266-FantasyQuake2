@@ -619,9 +619,17 @@ void InitClientPersistant (gclient_t *client)
 
 	//MOD REFERENCE
 	//item = FindItem("Blaster");
+	item = FindItem("LightningSpell");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 1;
+
 	item = FindItem("FireSpell");
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
+
+	/*item = FindItem("StormSpell");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 1;*/
 
 	client->pers.weapon = item;
 
@@ -635,7 +643,7 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.max_cells		= 200;
 	client->pers.max_slugs		= 50;
 
-	client->pers.max_mana = 50;
+	client->pers.max_mana = 500;
 
 	client->pers.connected = true;
 }

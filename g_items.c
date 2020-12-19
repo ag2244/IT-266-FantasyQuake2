@@ -36,7 +36,10 @@ void Weapon_GrenadeLauncher (edict_t *ent);
 void Weapon_Railgun (edict_t *ent);
 void Weapon_BFG (edict_t *ent);
 
+//MOD
 void Spell_Fire(edict_t *ent);
+void Spell_Lightning(edict_t *ent);
+void Spell_Storm(edict_t *ent);
 
 gitem_armor_t jacketarmor_info	= { 25,  50, .30, .00, ARMOR_JACKET};
 gitem_armor_t combatarmor_info	= { 50, 100, .60, .30, ARMOR_COMBAT};
@@ -1583,6 +1586,54 @@ always owned, never in the world
 		0,
 		""
 	},
+
+	{
+		"spell_lightning",
+		NULL,
+		Use_Weapon,
+		NULL,
+		Spell_Lightning,
+		"misc/w_pkup.wav",
+		/* //REPLACE THE 2 LINES BELOW WITH THE 2 LINES BELOW THE END OF THIS COMMENT
+		"models/weapons/g_hyperb/tris.md2", EF_ROTATE,
+		"models/weapons/v_hyperb/tris.md2",
+		*/
+		NULL, NULL,
+		NULL,
+		"w_bfg",
+		"LightningSpell",
+		0,
+		1,
+		"MANA",
+		IT_WEAPON,
+		NULL,
+		0,
+		""
+	},
+	/*/
+	{
+		"spell_storm",
+		NULL,
+		Use_Weapon,
+		NULL,
+		Spell_Storm,
+		"misc/w_pkup.wav",
+		/* //REPLACE THE 2 LINES BELOW WITH THE 2 LINES BELOW THE END OF THIS COMMENT
+		"models/weapons/g_hyperb/tris.md2", EF_ROTATE,
+		"models/weapons/v_hyperb/tris.md2",
+		*-/
+		NULL, NULL,
+		NULL,
+		"w_bfg",
+		"StormSpell",
+		0,
+		1,
+		"MANA",
+		IT_WEAPON,
+		NULL,
+		0,
+		""
+	},*/
 
 	//
 	// AMMO ITEMS
