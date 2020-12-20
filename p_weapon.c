@@ -764,6 +764,18 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 	float	damage_radius;
 	int		radius_damage;
 
+	//MOD
+	vec3_t		from;
+	vec3_t		end;
+	trace_t		tr;
+	edict_t		*ignore;
+	int			mask;
+	qboolean	water;
+	vec3_t newOrigin;
+	vec3_t	down = { 0, 0, -1 };
+
+	//ENDMOD
+
 	damage = 100 + (int)(random() * 20.0);
 	radius_damage = 120;
 	damage_radius = 120;
@@ -779,8 +791,23 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 	ent->client->kick_angles[0] = -1;
 
 	VectorSet(offset, 8, 8, ent->viewheight-8);
-	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_rocket (ent, start, forward, damage, 650, damage_radius, radius_damage);
+	
+	//MOD
+	VectorMA(start, 8192, forward, end);
+	VectorCopy(start, from);
+	ignore = ent;
+	water = false;
+	mask = MASK_SHOT | CONTENTS_SLIME | CONTENTS_LAVA;
+	tr = gi.trace(from, NULL, NULL, end, ignore, mask);
+
+	VectorCopy(end, newOrigin);
+	newOrigin[2] += 100;
+
+	fire_rocket(ent, newOrigin, down, damage, 650, damage_radius, radius_damage);
+
+	//ENDMOD
+	//P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
+	//fire_rocket (ent, start, forward, damage, 650, damage_radius, radius_damage);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -1579,3 +1606,61 @@ void Spell_Lightning(edict_t *ent)
 //==============================================
 //	STORM SPELL
 //==============================================
+
+void cast_storm(edict_t *ent)
+{
+	vec3_t		start;
+	vec3_t		forward, right;
+	vec3_t		offset;
+	int			damage;
+	int			kick;
+
+	if (deathmatch->value)
+	{	// normal damage is too extreme in dm
+		damage = 100;
+		kick = 200;
+	}
+	else
+	{
+		damage = 150;
+		kick = 250;
+	}
+
+	if (is_quad)
+	{
+		damage *= 4;
+		kick *= 4;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorScale(forward, -3, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -3;
+
+	VectorSet(offset, 0, 7, ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	fire_storm(ent, start, forward, damage, kick);
+
+	// send muzzle flash
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_RAILGUN | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	ent->client->ps.gunframe++;
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+		ent->client->pers.inventory[ent->client->ammo_index]--;
+}
+
+void Spell_Storm(edict_t *ent)
+{
+	//Idle animation entry points - These make the fidgeting look more random
+	static int	pause_frames[] = { 13, 32, 42 };
+	//The frames at which the weapon will fire
+	static int	fire_frames[] = { 10, 0 };
+
+	//The call is made...
+	Weapon_Generic(ent, 9, 14, 39, 42, /* Reload. Wait for it.63, 68,*/ pause_frames, fire_frames, cast_storm);
+}

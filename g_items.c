@@ -1610,7 +1610,7 @@ always owned, never in the world
 		0,
 		""
 	},
-	/*/
+	
 	{
 		"spell_storm",
 		NULL,
@@ -1621,7 +1621,7 @@ always owned, never in the world
 		/* //REPLACE THE 2 LINES BELOW WITH THE 2 LINES BELOW THE END OF THIS COMMENT
 		"models/weapons/g_hyperb/tris.md2", EF_ROTATE,
 		"models/weapons/v_hyperb/tris.md2",
-		*-/
+		*/
 		NULL, NULL,
 		NULL,
 		"w_bfg",
@@ -1633,7 +1633,7 @@ always owned, never in the world
 		NULL,
 		0,
 		""
-	},*/
+	},
 
 	//
 	// AMMO ITEMS

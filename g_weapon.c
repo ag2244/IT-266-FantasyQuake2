@@ -940,6 +940,58 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 	gi.linkentity (bfg);
 }
 
+static void Cluster_Explode(edict_t *ent)
+
+{
+	vec3_t		origin;
+
+	//Sean added these 4 vectors
+
+	vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+	vec3_t   grenade4;
+
+	if (ent->owner->client)
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+	//FIXME: if we are onground then raise our Z just a bit since we are a point?
+	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, 0);
+
+	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
+	gi.WriteByte(svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
+		else
+			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		if (ent->groundentity)
+			gi.WriteByte(TE_GRENADE_EXPLOSION);
+		else
+			gi.WriteByte(TE_ROCKET_EXPLOSION);
+	}
+	gi.WritePosition(origin);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	// SumFuka did this bit : give grenades up/outwards velocities
+	VectorSet(grenade1, 20, 20, 5);
+	VectorSet(grenade2, 20, -20, 5);
+	VectorSet(grenade3, -20, 20, 5);
+	VectorSet(grenade4, -20, -20, 5);
+
+	// Sean : explode the four grenades outwards
+	fire_grenade2(ent, origin, grenade1, 120, 10, 0.25, 120, false);
+	fire_grenade2(ent, origin, grenade2, 120, 10, 0.25, 120, false);
+	fire_grenade2(ent, origin, grenade3, 120, 10, 0.25, 120, false);
+	fire_grenade2(ent, origin, grenade4, 120, 10, 0.25, 120, false);
+
+	G_FreeEdict(ent);
+}
+
 
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
@@ -966,7 +1018,7 @@ void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int sp
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
-	grenade->think = Grenade_Explode;
+	grenade->think = Cluster_Explode;
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "grenade";
@@ -978,21 +1030,44 @@ void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int sp
 
 //Function for making explosions and stuff 
 //Inspired by this, though I only used one bit: https://www.quakewiki.net/archives/qdevels/quake2/27_7_98b.html
-static void rocketStorm(edict_t *ent)
+/*
+=================
+doStorm
+=================
+*/
+
+static void doStorm(edict_t *ent)
 {
-	float	damage_radius = (1000 / 4);
+	float	damage_radius = 250;
 	vec3_t	forward = { 0, 0, -1 };
-	int		damage = (200 / 4);
-	vec3_t newOrigin;
+	int		damage = 1;
+	vec3_t	newOrigin;
+	//int     timer = (8000 / 2.5);    /* next think = 8000/timer (2.5 secs) */
+
+	int numRocketsSquared = 3;
+	float rocketDist = 25;
 
 	VectorCopy(ent->s.origin, newOrigin);
-	newOrigin[2] -= 100;
+	newOrigin[2] += 100;
 
-	fire_rocket(ent, ent->s.origin, forward, damage, 0, 0.1, damage_radius);
+	newOrigin[0] -= (numRocketsSquared / 2) * rocketDist;
+
+	for (int i = 0; i < numRocketsSquared; i++) {
+		
+		newOrigin[1] -= (numRocketsSquared / 2) * rocketDist;
+
+		for (int j = 0; j < numRocketsSquared; j++) {
+			fire_rocket(ent, newOrigin, forward, damage, 400, damage_radius, 120);
+			newOrigin[1] += rocketDist;
+		}
+
+		newOrigin[0] += rocketDist;
+
+	}
 
 	//G_FreeEdict(ent);
 }
-void fireRocketStorm(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick) //Mod Reference
+void fire_storm(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick) //Mod Reference
 {
 	vec3_t		from;
 	vec3_t		end;
@@ -1023,12 +1098,12 @@ void fireRocketStorm(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int
 			else
 				ignore = NULL;
 
-			if ((tr.ent != self) && (tr.ent->takedamage)) {
-				rocketStorm(tr.ent);
-				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, 0, MOD_RAILGUN);
+			if ((tr.ent) && (tr.ent->takedamage)) {
+				doStorm(tr.ent);
+				//T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, 0, MOD_RAILGUN);
 			}
-
-			/*for (int i = 0; i < 5; i++) {
+			
+			for (int i = 0; i < -1; i++) {
 				// send gun puff / flash
 				gi.WriteByte(svc_temp_entity);
 				gi.WriteByte(TE_RAILTRAIL);
@@ -1048,7 +1123,7 @@ void fireRocketStorm(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int
 					gi.WritePosition(org);
 					gi.multicast(org, MULTICAST_PHS);
 				}
-			}*/
+			}
 
 		}
 
