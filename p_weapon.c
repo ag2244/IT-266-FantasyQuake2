@@ -1477,10 +1477,6 @@ void Spell_Fire_Cast(edict_t *ent)
 	float	radius;
 	float speed = 1500;
 
-	int numGrensHoriz = 3;
-	int numGrensVert = 0;
-	float grenDist = 0.1;
-
 	//vec3_t forwardRand;
 
 	radius = damage + 40;
@@ -1639,7 +1635,7 @@ void cast_storm(edict_t *ent)
 
 	VectorSet(offset, 0, 7, ent->viewheight - 8);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
-	fire_storm(ent, start, forward, damage, kick);
+	fire_storm(ent, start, forward);
 
 	// send muzzle flash
 	gi.WriteByte(svc_muzzleflash);

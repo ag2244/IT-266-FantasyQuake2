@@ -461,7 +461,6 @@ static void Cluster_Explode(edict_t *ent)
 	vec3_t		origin;
 	vec3_t		randVel;
 
-	double minVel = -50;
 	double maxVel = 50;
 
 	if (ent->owner->client)
@@ -1055,7 +1054,7 @@ static void doStorm(edict_t *ent)
 
 	//G_FreeEdict(ent);
 }
-void fire_storm(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick) //Mod Reference
+void fire_storm(edict_t *self, vec3_t start, vec3_t aimdir) //Mod Reference
 {
 	vec3_t		from;
 	vec3_t		end;
