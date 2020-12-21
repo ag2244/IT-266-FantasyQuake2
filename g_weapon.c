@@ -452,6 +452,56 @@ static void Grenade_Explode (edict_t *ent)
 	G_FreeEdict (ent);
 }
 
+//This link helped a bit
+//https://www.quakewiki.net/archives/qdevels/quake2/25_12_97f.html
+
+static void Cluster_Explode(edict_t *ent)
+
+{
+	vec3_t		origin;
+	vec3_t		randVel;
+
+	double minVel = -50;
+	double maxVel = 50;
+
+	if (ent->owner->client)
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, 0);
+
+	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
+	gi.WriteByte(svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
+		else
+			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		if (ent->groundentity)
+			gi.WriteByte(TE_GRENADE_EXPLOSION);
+		else
+			gi.WriteByte(TE_ROCKET_EXPLOSION);
+	}
+	gi.WritePosition(origin);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	for (int i = 0; i < 5; i++) {
+
+		double rand_00 = crandom() * maxVel;
+		double rand_01 = crandom() * maxVel;
+
+		VectorSet(randVel, rand_00, rand_01, 5);
+
+		fire_grenade2(ent, origin, randVel, 120, 10, 0.25, 120, false);
+
+	}
+
+	G_FreeEdict(ent);
+}
+
 static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
@@ -480,9 +530,9 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	}
 
 	ent->enemy = other;
-	Grenade_Explode (ent);
+	Cluster_Explode (ent);
 }
-/* MOD: ORIGINAL POSITION
+/*//MOD: ORIGINAL POSITION
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
 	edict_t	*grenade;
@@ -508,7 +558,7 @@ void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int sp
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
-	grenade->think = bfg_explode;
+	grenade->think = Grenade_Explode;
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "grenade";
@@ -656,17 +706,6 @@ fire_rail
 =================
 */
 
-static void testExplode(edict_t *ent)
-{
-	float	damage_radius = (1000 / 4);
-	vec3_t	forward = { 0, 0, -1 };
-	int		damage = (200 / 4);
-	//int     timer = (8000 / 2.5);    /* next think = 8000/timer (2.5 secs) */
-
-	fire_grenade(ent, ent->s.origin, forward, damage, 0, 0.1, damage_radius);
-
-	//G_FreeEdict(ent);
-}
 void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick) //Mod Reference
 {
 	vec3_t		from;
@@ -699,7 +738,6 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 				ignore = NULL;
 
 			if ((tr.ent != self) && (tr.ent->takedamage)) {
-				testExplode(tr.ent);
 				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, 0, MOD_RAILGUN);
 			}
 
@@ -940,57 +978,7 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 	gi.linkentity (bfg);
 }
 
-static void Cluster_Explode(edict_t *ent)
 
-{
-	vec3_t		origin;
-
-	//Sean added these 4 vectors
-
-	vec3_t   grenade1;
-	vec3_t   grenade2;
-	vec3_t   grenade3;
-	vec3_t   grenade4;
-
-	if (ent->owner->client)
-		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
-
-	//FIXME: if we are onground then raise our Z just a bit since we are a point?
-	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, 0);
-
-	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
-	gi.WriteByte(svc_temp_entity);
-	if (ent->waterlevel)
-	{
-		if (ent->groundentity)
-			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
-		else
-			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
-	}
-	else
-	{
-		if (ent->groundentity)
-			gi.WriteByte(TE_GRENADE_EXPLOSION);
-		else
-			gi.WriteByte(TE_ROCKET_EXPLOSION);
-	}
-	gi.WritePosition(origin);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
-
-	// SumFuka did this bit : give grenades up/outwards velocities
-	VectorSet(grenade1, 20, 20, 5);
-	VectorSet(grenade2, 20, -20, 5);
-	VectorSet(grenade3, -20, 20, 5);
-	VectorSet(grenade4, -20, -20, 5);
-
-	// Sean : explode the four grenades outwards
-	fire_grenade2(ent, origin, grenade1, 120, 10, 0.25, 120, false);
-	fire_grenade2(ent, origin, grenade2, 120, 10, 0.25, 120, false);
-	fire_grenade2(ent, origin, grenade3, 120, 10, 0.25, 120, false);
-	fire_grenade2(ent, origin, grenade4, 120, 10, 0.25, 120, false);
-
-	G_FreeEdict(ent);
-}
 
 
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
@@ -1044,7 +1032,7 @@ static void doStorm(edict_t *ent)
 	vec3_t	newOrigin;
 	//int     timer = (8000 / 2.5);    /* next think = 8000/timer (2.5 secs) */
 
-	int numRocketsSquared = 3;
+	int numRocketsSquared = 2;
 	float rocketDist = 25;
 
 	VectorCopy(ent->s.origin, newOrigin);

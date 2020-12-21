@@ -1658,7 +1658,7 @@ always owned, never in the world
 		IT_AMMO,
 		0,
 		NULL,
-		AMMO_SHELLS,
+		AMMO_MANA,
 /* precache */ ""
 	},
 
